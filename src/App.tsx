@@ -34,6 +34,8 @@ export interface AppState {
   view: ViewMode;
   cache?: DiffCache;
   changeRatio?: number; // 0..1
+  // 当执行“交换左右”时，跳过下一次自动重算（缓存可复用）
+  skipComputeOnce?: boolean;
 }
 
 type Action =
@@ -58,9 +60,13 @@ function reducer(state: AppState, action: Action): AppState {
     case 'set-cache':
       return { ...state, cache: action.payload };
     case 'swap':
-      return { ...state, left: state.right, right: state.left, cache: undefined, changeRatio: undefined };
+      // 保留 cache 与 changeRatio，避免不必要的重算；仅跳过下一次自动计算
+      return { ...state, left: state.right, right: state.left, skipComputeOnce: true };
     case 'set-change-ratio':
       return { ...state, changeRatio: action.payload };
+    case 'consume-skip':
+      return { ...state, skipComputeOnce: false };
+
     default:
       return state;
   }
@@ -94,9 +100,16 @@ export default function App() {
   // 注意：通过 effect 监听，避免事件次序导致的状态不同步
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (state.left && state.right) onBothReady();
+    if (state.left && state.right) {
+      if (state.skipComputeOnce) {
+        // 本次由于交换导致的变更，跳过自动计算
+        dispatch({ type: 'consume-skip' });
+      } else {
+        onBothReady();
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.left, state.right]);
+  }, [state.left, state.right, state.skipComputeOnce]);
 
   function resetHeatmapBuffer(width: number, height: number) {
     const canvas = heatmapCanvasRef.current;
@@ -140,7 +153,7 @@ export default function App() {
           dispatch({ type: 'set-cache', payload: { width, height, diff, validMask, validCount } });
           resolve();
         };
-        worker.postMessage(msg, [a.imageData.data.buffer, b.imageData.data.buffer]);
+        worker.postMessage(msg);
       });
     } else {
       const { width, height, diff, validMask, validCount } = computeDiff(a.imageData, b.imageData);
@@ -218,8 +231,8 @@ export default function App() {
   }
 
   function onSwap() {
+    // 仅交换左右并标记跳过一次自动计算；缓存可直接复用
     dispatch({ type: 'swap' });
-    setTimeout(() => onBothReady(), 0);
   }
 
   function onView(v: ViewMode) { dispatch({ type: 'set-view', payload: v }); }

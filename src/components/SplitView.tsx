@@ -53,6 +53,7 @@ export function SplitView({ left, right }: Props) {
         <div
           className="split-handle"
           role="slider"
+          aria-orientation="horizontal"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(pos * 100)}
