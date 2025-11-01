@@ -39,7 +39,7 @@ export function SplitView({ left, right }: Props) {
     setPos(ratio);
   };
 
-  const posPx = Math.round((leftRef.current?.clientWidth || 0) * pos);
+  const rightInset = `${Math.max(0, 100 - pos * 100)}%`;
 
   return (
     <div className="split" ref={containerRef}
@@ -48,7 +48,7 @@ export function SplitView({ left, right }: Props) {
     >
       <div className="split-canvas">
         <canvas ref={rightRef} style={{ clipPath: `inset(0 0 0 0)` }} />
-        <canvas ref={leftRef} style={{ clipPath: `inset(0 0 0 ${Math.max(0, pos*100)}%)` }} />
+        <canvas ref={leftRef} style={{ clipPath: `inset(0 ${rightInset} 0 0)` }} />
         {/* Divider Handle */}
         <div
           className="split-handle"
@@ -68,4 +68,3 @@ export function SplitView({ left, right }: Props) {
     </div>
   );
 }
-

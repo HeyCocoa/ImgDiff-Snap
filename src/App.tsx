@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useRef, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { DropZone } from './components/DropZone';
 import { ControlBar } from './components/ControlBar';
 import { SplitView } from './components/SplitView';
@@ -90,6 +90,14 @@ export default function App() {
     return workerRef.current;
   }
 
+  // 当左右两图就绪时触发计算与缓存
+  // 注意：通过 effect 监听，避免事件次序导致的状态不同步
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (state.left && state.right) onBothReady();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.left, state.right]);
+
   function resetHeatmapBuffer(width: number, height: number) {
     const canvas = heatmapCanvasRef.current;
     if (!canvas) return;
@@ -138,8 +146,6 @@ export default function App() {
       const { width, height, diff, validMask, validCount } = computeDiff(a.imageData, b.imageData);
       dispatch({ type: 'set-cache', payload: { width, height, diff, validMask, validCount } });
     }
-    // 初次阈值应用
-    applyCurrentThreshold(state.threshold);
   }
 
   function applyCurrentThreshold(t: number) {
@@ -154,6 +160,13 @@ export default function App() {
     const ratio = cache.validCount ? changed / cache.validCount : undefined;
     dispatch({ type: 'set-change-ratio', payload: ratio });
   }
+
+  // 当缓存或阈值变化时，更新热力图与统计
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (state.cache) applyCurrentThreshold(state.threshold);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.cache, state.threshold]);
 
   // 当阈值变化时重新映射
   const onThresholdChange = (t: number) => {
@@ -280,4 +293,3 @@ function checker(ctx: CanvasRenderingContext2D, w: number, h: number, a: string,
     }
   }
 }
-
