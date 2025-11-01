@@ -1,54 +1,32 @@
-# ImgDiff-Snap
-In-browser image diff with slider and heatmap. Change ratio, save PNG. 100% local.
+# ImgDiff Snap
 
-纯前端图片对比：拖入两张同尺寸图片，滑块 + 红色热力图，显示变化占比，可下载热力图 PNG，全程本地运行。
+本地运行的图片像素对比工具：左右滑块 + 红色热力图，一键导出 PNG。
 
-## Requirements / 环境要求
-- Node.js >= 18
+## 特点
+- 拖入或选择两张同尺寸图片（PNG/JPEG/WebP）。
+- 视图切换：分割视图 / 热力图。
+- 阈值 0–255 实时生效；显示“变化占比”。
+- 导出热力图 PNG（原图尺寸，文件名含阈值与时间戳）。
+- 100% 本地，无任何网络请求；大图自动使用 Web Worker。
 
-## Install / 安装依赖
-任选一个包管理器执行安装（推荐 npm）：
+## 快速开始
+- 环境：Node.js ≥ 18
+- 安装：`npm i`
+- 开发：`npm run dev`（Vite 本地预览）
+- 构建：`npm run build` → 产出到 `dist/`
+- 预览构建：`npm run preview`
+- 全量检查：`npm run check`（Lint + TypeScript + Build）
 
-```bash
-# npm（推荐）
-npm install
+## 使用指南
+- 将两张同尺寸图片拖入左右卡片区，或分别点击选择文件。
+- 拖动中间分割条对比；键盘 ←/→ 微调（按住 Shift ×10）。
+- 切换“热力图”查看差异区域；阈值越小越敏感。
+- 点击“下载热力图 PNG”保存结果。
 
-# 或 pnpm
-pnpm install
+## 限制与性能
+- 仅比较尺寸一致的图片；任一像素 α<255 的位置不计入统计。
+- 单图最大 16MP，单边 ≤ 8192px；≥6MP 自动在 Worker 中计算。
 
-# 或 yarn
-yarn
-```
-
-## Scripts / 常用命令
-- 开发（本地预览）：`npm run dev`
-- 构建（产出静态站点）：`npm run build`
-- 预览构建产物：`npm run preview`
-
-更多检查：
-- 全量检查（Lint + TypeScript 类型 + 构建）：`npm run check`
-- 仅类型检查：`npm run typecheck`
-
-上述命令等价于 pnpm / yarn 的 `pnpm dev|build|preview`、`yarn dev|build|preview`。
-
-## Optional / 可选优化（Preact）
-若追求更小包体，可切换到 Preact（非必须）：
-
-```bash
-# 安装预设（dev 依赖）
-npm i -D @preact/preset-vite preact
-```
-
-在 `vite.config.ts` 中启用预设或添加 alias：
-
-```ts
-// 示例（别名方案）
-export default defineConfig({
-  resolve: { alias: { react: 'preact/compat', 'react-dom': 'preact/compat' } }
-})
-```
-
-## Notes / 说明
-- 本项目为纯前端工具，无后端依赖，构建产物为 `dist/` 可离线托管的静态文件。
-- favicon 位于 `public/favicon.svg`（Vite 构建时会拷贝到根目录）；`index.html` 使用相对路径，便于在任意子路径托管。
-- 更多实现与规格细节见《开发文档.md》。
+## 隐私与许可
+- 应用完全在浏览器本地运行，不上传任何数据。
+- License: MIT。
