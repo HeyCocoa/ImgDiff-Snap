@@ -25,6 +25,10 @@ yarn
 - 构建（产出静态站点）：`npm run build`
 - 预览构建产物：`npm run preview`
 
+更多检查：
+- 全量检查（Lint + TypeScript 类型 + 构建）：`npm run check`
+- 仅类型检查：`npm run typecheck`
+
 上述命令等价于 pnpm / yarn 的 `pnpm dev|build|preview`、`yarn dev|build|preview`。
 
 ## Optional / 可选优化（Preact）
@@ -46,4 +50,5 @@ export default defineConfig({
 
 ## Notes / 说明
 - 本项目为纯前端工具，无后端依赖，构建产物为 `dist/` 可离线托管的静态文件。
+- favicon 位于 `public/favicon.svg`（Vite 构建时会拷贝到根目录）；`index.html` 使用相对路径，便于在任意子路径托管。
 - 更多实现与规格细节见《开发文档.md》。

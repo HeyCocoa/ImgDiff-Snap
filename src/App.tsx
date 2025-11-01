@@ -45,7 +45,8 @@ type Action =
   | { type: 'set-view'; payload: ViewMode }
   | { type: 'set-cache'; payload?: DiffCache }
   | { type: 'swap' }
-  | { type: 'set-change-ratio'; payload?: number };
+  | { type: 'set-change-ratio'; payload?: number }
+  | { type: 'consume-skip' };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -287,7 +288,12 @@ export default function App() {
 }
 
 // Helpers: generate example pairs on the fly
-async function makePair(w: number, h: number, drawA: (ctx: CanvasRenderingContext2D) => void, drawB: (ctx: CanvasRenderingContext2D) => void) {
+async function makePair(
+  w: number,
+  h: number,
+  drawA: (ctx: CanvasRenderingContext2D) => void,
+  drawB: (ctx: CanvasRenderingContext2D) => void
+) {
   const ca = document.createElement('canvas'); ca.width = w; ca.height = h; const cxa = ca.getContext('2d')!;
   const cb = document.createElement('canvas'); cb.width = w; cb.height = h; const cxb = cb.getContext('2d')!;
   cxa.fillStyle = '#ffffff'; cxa.fillRect(0, 0, w, h); drawA(cxa);
@@ -296,7 +302,7 @@ async function makePair(w: number, h: number, drawA: (ctx: CanvasRenderingContex
   const bBlob = await new Promise<Blob | null>((res) => cb.toBlob(res));
   const a = new File([aBlob!], 'example-left.png', { type: 'image/png' });
   const b = new File([bBlob!], 'example-right.png', { type: 'image/png' });
-  return [a, b] as const;
+  return [a, b] as [File, File];
 }
 
 function checker(ctx: CanvasRenderingContext2D, w: number, h: number, a: string, b: string, size = 16) {
