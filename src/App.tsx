@@ -191,7 +191,7 @@ export default function App() {
   const loadExample = async (key: string) => {
     // 运行时生成示例 PNG（不依赖网络/文件）
     const gens: Record<string, () => Promise<[File, File]>> = {
-      'set-1': async () => makePair(512, 320, (ctx) => {}, (ctx) => {
+      'set-1': async () => makePair(512, 320, (_) => {}, (ctx) => {
         ctx.fillStyle = 'rgba(255,0,0,1)';
         ctx.fillRect(20, 20, 120, 80);
       }),

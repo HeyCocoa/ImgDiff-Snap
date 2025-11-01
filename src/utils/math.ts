@@ -16,13 +16,15 @@ export function computeDiff(a: ImageData, b: ImageData) {
 // 阈值映射到热力图（纯红，alpha 线性映射）；返回变化像素数
 export function applyThresholdToHeatmap(diff: Uint8Array, valid: Uint8Array, w: number, h: number, t: number, out: ImageData) {
   const D = diff, V = valid, N = w * h, pix = out.data; let changed = 0;
+  // α 映射 LUT（长度 256）；d<=t 为 0，否则线性映射到 1..255
+  const lut = new Uint8Array(256);
   const denom = 255 - t || 1; // t=255 防除零
+  for (let d = 0; d < 256; d++) lut[d] = d <= t ? 0 : Math.round(255 * (d - t) / denom);
   for (let i = 0, p = 0; i < N; i++, p += 4) {
     const isValid = V[i] === 1; const d = D[i];
-    if (!isValid || d <= t) { pix[p]=255; pix[p+1]=0; pix[p+2]=0; pix[p+3]=0; continue; }
-    const a = Math.round(255 * (d - t) / denom);
-    pix[p]=255; pix[p+1]=0; pix[p+2]=0; pix[p+3]=a; changed++;
+    const a = isValid ? lut[d] : 0;
+    pix[p]=255; pix[p+1]=0; pix[p+2]=0; pix[p+3]=a;
+    if (a) changed++;
   }
   return changed;
 }
-

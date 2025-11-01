@@ -45,6 +45,8 @@ export function SplitView({ left, right }: Props) {
     <div className="split" ref={containerRef}
       onMouseDown={(e) => onDrag(e.clientX)}
       onMouseMove={(e) => e.buttons === 1 && onDrag(e.clientX)}
+      onTouchStart={(e) => onDrag(e.touches[0].clientX)}
+      onTouchMove={(e) => onDrag(e.touches[0].clientX)}
     >
       <div className="split-canvas">
         <canvas ref={rightRef} style={{ clipPath: `inset(0 0 0 0)` }} />
