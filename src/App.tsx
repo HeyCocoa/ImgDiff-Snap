@@ -182,6 +182,17 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.cache, state.threshold]);
 
+  // 修复：切换到热力图视图时，画布才挂载；需重建缓冲并按当前阈值渲染
+  useEffect(() => {
+    if (state.view === 'heatmap') {
+      const w = state.cache?.width ?? dims.w ?? 0;
+      const h = state.cache?.height ?? dims.h ?? 0;
+      if (w && h) resetHeatmapBuffer(w, h);
+      if (state.cache) applyCurrentThreshold(state.threshold);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.view, state.cache, dims.w, dims.h]);
+
   // 当阈值变化时重新映射
   const onThresholdChange = (t: number) => {
     dispatch({ type: 'set-threshold', payload: t });
@@ -236,7 +247,18 @@ export default function App() {
     dispatch({ type: 'swap' });
   }
 
-  function onView(v: ViewMode) { dispatch({ type: 'set-view', payload: v }); }
+  function onView(v: ViewMode) {
+    dispatch({ type: 'set-view', payload: v });
+    if (v === 'heatmap') {
+      // 在视图切换完成的下一帧重建缓冲并按当前阈值渲染，避免首次空白
+      requestAnimationFrame(() => {
+        const w = state.cache?.width ?? dims.w ?? 0;
+        const h = state.cache?.height ?? dims.h ?? 0;
+        if (w && h) resetHeatmapBuffer(w, h);
+        if (state.cache) applyCurrentThreshold(state.threshold);
+      });
+    }
+  }
 
   function onDownloadHeatmap() {
     const canvas = heatmapCanvasRef.current;

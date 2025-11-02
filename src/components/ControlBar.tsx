@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { ViewMode } from '../App';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ControlBar({ threshold, onChangeThreshold, view, onChangeView, onSwap, onLoadExample, onDownload, ready }: Props) {
+  const sliderStyle = { ['--val' as any]: threshold } as CSSProperties;
   return (
     <div className="bar">
       <div className="bar-group">
@@ -23,6 +25,7 @@ export function ControlBar({ threshold, onChangeThreshold, view, onChangeView, o
             max={255}
             step={1}
             value={threshold}
+            style={sliderStyle}
             aria-label="阈值"
             onChange={(e) => onChangeThreshold(parseInt((e.target as HTMLInputElement).value))}
           />
@@ -45,4 +48,3 @@ export function ControlBar({ threshold, onChangeThreshold, view, onChangeView, o
     </div>
   );
 }
-
