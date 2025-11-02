@@ -67,7 +67,7 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, changeRatio: action.payload };
     case 'consume-skip':
       return { ...state, skipComputeOnce: false };
-
+    
     default:
       return state;
   }
@@ -296,7 +296,7 @@ export default function App() {
         {state.view === 'split' ? (
           <SplitView left={state.left} right={state.right} />
         ) : (
-          <HeatmapView ref={heatmapCanvasRef} width={dims.w ?? 0} height={dims.h ?? 0} />
+          <HeatmapView ref={heatmapCanvasRef} width={dims.w ?? 0} height={dims.h ?? 0} threshold={state.threshold} changeRatio={state.changeRatio} />
         )}
       </div>
 

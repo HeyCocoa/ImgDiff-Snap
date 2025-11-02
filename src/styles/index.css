@@ -16,9 +16,14 @@ h1{font-size:18px;margin:8px 0 12px}
 
 /* Dropzone */
 .dz{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
-.dz-card{display:block;border:1px dashed var(--border);background:var(--panel);border-radius:10px;padding:16px;height:88px;cursor:pointer}
+.dz-card{display:block;border:1px dashed var(--border);background:var(--panel);border-radius:10px;padding:16px;min-height:88px;cursor:pointer;transition:border-color .15s ease, box-shadow .15s ease}
+.dz.is-dragover .dz-card{border-color:var(--accent);box-shadow:0 0 0 2px #ef444420 inset}
 .dz-title{font-weight:600;margin-bottom:6px}
-.dz-meta{color:var(--muted)}
+.dz-row{display:flex;gap:10px;align-items:center}
+.dz-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;background:#f3f4f6;border:1px solid var(--border);flex:0 0 auto}
+.dz-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.dz-thumb-ph{width:100%;height:100%;background:linear-gradient(135deg,#e5e7eb,#f3f4f6)}
+.dz-meta{color:var(--muted);word-break:break-all}
 .dz-hint{color:var(--muted)}
 
 /* Bar */
@@ -28,6 +33,16 @@ button,select{background:#f3f4f6;color:var(--text);border:1px solid #d1d5db;bord
 button:hover,select:hover{border-color:#cbd5e1}
 button:focus-visible,select:focus-visible{outline:none; box-shadow:0 0 0 2px #e5e7eb; border-color:#94a3b8}
 button[disabled]{opacity:.5;cursor:not-allowed}
+
+/* segmented control */
+.seg{background:#f3f4f6;border:1px solid #d1d5db;border-radius:8px;padding:2px}
+.seg button{border:none;background:transparent;border-radius:6px;padding:6px 10px}
+.seg button[aria-selected=true]{background:#fff;box-shadow:0 1px 0 #00000008}
+
+.chips{display:flex;gap:6px}
+.chip{border-radius:999px;padding:4px 10px}
+.primary{background:var(--accent);border-color:#dc2626;color:#fff}
+.primary:hover{filter:brightness(0.98)}
 
 /* 自定义 Range：确保进度条能完整到两端 */
 input[type=range]{
@@ -55,9 +70,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .split{position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fafafa;touch-action:none;-webkit-user-select:none;user-select:none}
 .split-canvas{position:relative;width:100%;height:60vh;display:grid;place-items:center}
 .split canvas{position:absolute;image-rendering:pixelated;max-width:100%;max-height:100%}
-.split-handle{position:absolute;top:0;bottom:0;width:2px;background:transparent;outline:none}
+.split-handle{display:none}
+.split-handle[data-hidden="1"], .split-handle.is-hidden{opacity:0;pointer-events:none}
+.split-handle{transition:opacity .2s ease}
 .split-handle::after{content:none}
 .split-meta{position:absolute;right:8px;bottom:6px;color:#111827;background:#ffffffcc;padding:2px 6px;border-radius:4px;border:1px solid var(--border)}
+
+/* Split position marker (shows while dragging) */
+.split-marker{position:absolute;bottom:4px;transform:translateX(-50%);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:2}
+.split-marker-caret{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111827cc}
+.split-marker-label{font-size:11px;line-height:1;background:#111827cc;color:#fff;padding:2px 6px;border-radius:4px;white-space:nowrap}
 
 .heatmap{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:
   linear-gradient(45deg,#e5e7eb 25%,transparent 25%),
@@ -68,3 +90,18 @@ background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0}
 .heatmap canvas{display:block;max-width:100%;max-height:60vh;margin:auto;image-rendering:pixelated}
 
 .stats{display:flex;gap:16px;margin:8px 0;color:#374151}
+
+/* Heatmap legend */
+.legend{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:4px;background:#ffffffcc;border:1px solid var(--border);border-radius:6px;padding:6px 8px;backdrop-filter:saturate(1.2) blur(2px)}
+.legend-title{font-size:12px;color:#111827}
+.legend-bar{position:relative;width:140px;height:14px}
+.legend-grad{position:absolute;inset:0;border-radius:999px;border:1px solid #e5e7eb;background:linear-gradient(90deg, rgba(255,0,0,0) 0%, rgba(255,0,0,1) 100%)}
+.legend-pointer{position:absolute;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:6px solid var(--accent)}
+.legend-scale{display:flex;justify-content:space-between;font-size:11px;color:#6b7280}
+
+/* Responsive adjustments */
+@media (max-width: 640px){
+  .dz{grid-template-columns:1fr}
+  .split-canvas{height:52vh}
+  .heatmap canvas{max-height:52vh}
+}
