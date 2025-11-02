@@ -8,9 +8,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5174",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5174",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run build",

@@ -8,10 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   </head>
   <body>
-    <div id="root">Loading…</div>
-    <script type="module">
-      // 强制为模块引入追加版本参数，避免浏览器偶发缓存导致的空白
-      import '/src/main.tsx?v=dev-20251102';
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
   </html>
