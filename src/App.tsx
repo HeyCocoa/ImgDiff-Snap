@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { DropZone } from './components/DropZone';
 import { ControlBar } from './components/ControlBar';
-import { SplitView } from './components/SplitView';
+import { SplitView, SplitViewHandle } from './components/SplitView';
 import { HeatmapView } from './components/HeatmapView';
 import { Stats } from './components/Stats';
 import { applyThresholdToHeatmap, computeDiff } from './utils/math';
@@ -82,6 +82,7 @@ export default function App() {
   const [error, setError] = useState<string | undefined>();
   const heatmapCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const heatmapImageDataRef = useRef<ImageData | null>(null);
+  const splitRef = useRef<SplitViewHandle | null>(null);
   const workerRef = useRef<Worker | null>(null);
 
   const dims = useMemo(() => {
@@ -269,6 +270,34 @@ export default function App() {
     downloadPNG(canvas, name);
   }
 
+  function onDownloadSplit() {
+    const a = state.left, b = state.right;
+    const w = dims.w ?? 0, h = dims.h ?? 0;
+    if (!a || !b || !w || !h) return;
+    const ratio = splitRef.current?.getRatio() ?? 0.5;
+    const x = Math.round(ratio * w);
+    const off = document.createElement('canvas');
+    off.width = w; off.height = h;
+    const ctx = off.getContext('2d');
+    if (!ctx) return;
+    // 背景白底，避免透明
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    // 右半：B 从 x 到 w
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x, 0, w - x, h); ctx.clip();
+    ctx.drawImage(b.bitmap, 0, 0);
+    ctx.restore();
+    // 左半：A 从 0 到 x
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, x, h); ctx.clip();
+    ctx.drawImage(a.bitmap, 0, 0);
+    ctx.restore();
+    const base = a.file?.name ? `${slug(a.file.name.replace(/\.[^.]+$/, ''))}-split` : 'split';
+    const name = `${base}-x${x}-${timestamp()}.png`;
+    downloadPNG(off, name);
+  }
+
   const validCount = state.cache?.validCount ?? 0;
 
   return (
@@ -287,14 +316,15 @@ export default function App() {
         onChangeView={onView}
         onSwap={onSwap}
         onLoadExample={loadExample}
-        onDownload={onDownloadHeatmap}
+        onDownloadSplit={onDownloadSplit}
+        onDownloadHeatmap={onDownloadHeatmap}
         ready={Boolean(state.left && state.right)}
       />
       {error && <div className="error" role="alert">{error}</div>}
 
       <div className="views">
         {state.view === 'split' ? (
-          <SplitView left={state.left} right={state.right} />
+          <SplitView ref={splitRef} left={state.left} right={state.right} />
         ) : (
           <HeatmapView ref={heatmapCanvasRef} width={dims.w ?? 0} height={dims.h ?? 0} threshold={state.threshold} changeRatio={state.changeRatio} />
         )}

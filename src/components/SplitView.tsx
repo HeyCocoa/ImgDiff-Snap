@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { LoadedImage } from '../App';
 
 interface Props {
@@ -6,7 +6,11 @@ interface Props {
   right?: LoadedImage;
 }
 
-export function SplitView({ left, right }: Props) {
+export interface SplitViewHandle {
+  getRatio: () => number; // 0..1 当前分割比例
+}
+
+export const SplitView = forwardRef<SplitViewHandle, Props>(function SplitView({ left, right }, ref) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const leftRef = useRef<HTMLCanvasElement | null>(null);
   const rightRef = useRef<HTMLCanvasElement | null>(null);
@@ -101,6 +105,11 @@ export function SplitView({ left, right }: Props) {
 
   const handleTabIndex = -1; // 把手隐藏，不提供直接聚焦
 
+  // 暴露只读接口给外部导出功能使用
+  useImperativeHandle(ref, () => ({
+    getRatio: () => pos,
+  }), [pos]);
+
   return (
     <div className="split" ref={containerRef}
       tabIndex={0}
@@ -142,4 +151,4 @@ export function SplitView({ left, right }: Props) {
       <div className="split-meta">{w && h ? `${w}×${h}` : '未加载图片'}</div>
     </div>
   );
-}
+});

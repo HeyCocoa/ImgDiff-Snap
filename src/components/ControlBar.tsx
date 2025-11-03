@@ -8,11 +8,12 @@ interface Props {
   onChangeView: (v: ViewMode) => void;
   onSwap: () => void;
   onLoadExample: (key: string) => void;
-  onDownload: () => void;
+  onDownloadSplit: () => void;
+  onDownloadHeatmap: () => void;
   ready: boolean;
 }
 
-export function ControlBar({ threshold, onChangeThreshold, view, onChangeView, onSwap, onLoadExample, onDownload, ready }: Props) {
+export function ControlBar({ threshold, onChangeThreshold, view, onChangeView, onSwap, onLoadExample, onDownloadSplit, onDownloadHeatmap, ready }: Props) {
   const sliderStyle = { ['--val' as any]: threshold } as CSSProperties;
   return (
     <div className="bar">
@@ -49,9 +50,15 @@ export function ControlBar({ threshold, onChangeThreshold, view, onChangeView, o
           <button type="button" className="chip" onClick={() => onLoadExample('set-3')}>示例3</button>
         </div>
         <button onClick={onSwap} disabled={!ready} title="交换左右">交换左右</button>
-        <button onClick={onDownload} disabled={!ready} className="primary" aria-label={`下载热力图（阈值 ${threshold}）`}>
-          下载热力图
-        </button>
+        {view === 'split' ? (
+          <button onClick={onDownloadSplit} disabled={!ready} className="primary" aria-label="下载分割图">
+            下载分割图
+          </button>
+        ) : (
+          <button onClick={onDownloadHeatmap} disabled={!ready} className="primary" aria-label={`下载热力图（阈值 ${threshold}）`}>
+            下载热力图
+          </button>
+        )}
       </div>
     </div>
   );
